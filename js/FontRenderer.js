@@ -110,10 +110,10 @@ function FontRenderer(canvas) {
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.uniform1i(this.currentProgram.samplerUniform, 0);
         var actualY = this.gl.viewportHeight - y;
-        mat4.translate(this.mvMatrix, this.mvMatrix, [this.convertToMatrix(x), this.convertToMatrix(actualY), 0.0]);
+        mat4.translate(this.mvMatrix, this.mvMatrix, [this.convertToMatrix(x, true), this.convertToMatrix(actualY, false), 0.0]);
         this.setMatrixUniforms(this.currentProgram);
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, this.fontBuffer.numItems);
-        mat4.translate(this.mvMatrix, this.mvMatrix, [-this.convertToMatrix(x), -this.convertToMatrix(actualY), 0.0]);
+        mat4.translate(this.mvMatrix, this.mvMatrix, [-this.convertToMatrix(x, true), -this.convertToMatrix(actualY, false), 0.0]);
     },
     this.setCurrentShaderProgram = function(shaderProgram) {
         this.gl.useProgram(shaderProgram);
@@ -234,5 +234,10 @@ function FontRenderer(canvas) {
         this.gl.generateMipmap(this.gl.TEXTURE_2D);
         
         return tex;
+    },
+    this.updateViewport = function() {
+        mat4.ortho(this.pMatrix, -this.gl.viewportRatio, this.gl.viewportRatio, -1.0, 1.0, 0.1, 100.0);
+        mat4.identity(this.mvMatrix);
+        mat4.translate(this.mvMatrix, this.mvMatrix, [-this.gl.viewportRatio , -1.0 , -1.0]);
     }
 }
