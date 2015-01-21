@@ -79,9 +79,12 @@ function FontRenderer(canvas) {
         this.gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, this.pMatrix);
         this.gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, this.mvMatrix);
     },
-    this.clearCanvas = function() {
+    this.setClearColour = function(r, g, b, a) {
+        this.gl.clearColor(r / 255, g / 255, b / 255, a / 255);
+    },
+    this.clear = function() {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    }
+    },
     this.setColour = function(r, g, b) {
         this.textColour = {
             r: r,
@@ -94,7 +97,7 @@ function FontRenderer(canvas) {
     },
     this.setFontSize = function(fontSize) {
         this.fontSize = fontSize;
-    }
+    },
     this.drawString = function(string, x, y, width, height) {
         this.setCurrentShaderProgram(this.shaderProgram);
         this.texture = this.createTextTexture(string, width, height);
@@ -102,10 +105,8 @@ function FontRenderer(canvas) {
         this.gl.enable(this.gl.BLEND);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.fontBuffer);
         this.gl.vertexAttribPointer(this.currentProgram.vertexPositionAttribute, this.fontBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
-
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureFontBuffer);
         this.gl.vertexAttribPointer(this.currentProgram.textureCoordAttribute, this.textureFontBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
-
         this.gl.activeTexture(this.gl.TEXTURE0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.uniform1i(this.currentProgram.samplerUniform, 0);
@@ -114,6 +115,7 @@ function FontRenderer(canvas) {
         this.setMatrixUniforms(this.currentProgram);
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, this.fontBuffer.numItems);
         mat4.translate(this.mvMatrix, this.mvMatrix, [-this.convertToMatrix(x, true), -this.convertToMatrix(actualY, false), 0.0]);
+        this.gl.disable(this.gl.BLEND);
     },
     this.setCurrentShaderProgram = function(shaderProgram) {
         this.gl.useProgram(shaderProgram);
